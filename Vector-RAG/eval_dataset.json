@@ -1,0 +1,303 @@
+[
+  {
+    "question": "What precautions should be followed when driving the Victoris through heavily waterlogged areas?",
+    "expected_facts": [
+      "The vehicle should not be driven or started in heavily waterlogged areas.",
+      "Water entering the engine may lead to hydrostatic lock.",
+      "Short circuiting of electrical systems may occur.",
+      "If the vehicle is stuck in deep water, the engine should not be cranked if the water level is below the exhaust pipe.",
+      "If the vehicle is submerged in water, the nearest authorized workshop should be contacted."
+    ]
+  },
+  {
+    "question": "What warranty duration does Maruti Suzuki provide for the Victoris vehicle and hybrid-related components?",
+    "expected_facts": [
+      "The standard vehicle warranty is 36 months or 1,00,000 kilometers, whichever occurs first.",
+      "Lithium-ion battery, ISG, Hybrid ECU, Inverter/Converter Unit and Power Management ECU are covered for 60 months or 1,00,000 kilometers.",
+      "Hybrid Electric Vehicle battery is covered for 96 months or 1,60,000 kilometers.",
+      "Lead acid battery is covered for 24 months or 40,000 kilometers."
+    ]
+  },
+  {
+    "question": "What conditions can void or limit the Maruti Suzuki Victoris warranty coverage?",
+    "expected_facts": [
+      "Using non-approved accessories or parts can void warranty coverage.",
+      "Unauthorized LPG/CNG retrofitting is not covered.",
+      "Damage caused by misuse, negligence, flooding or adulterated fuel is excluded.",
+      "Vehicles repaired outside authorized workshops are excluded from warranty coverage.",
+      "Tampering with the odometer can invalidate warranty claims."
+    ]
+  },
+  {
+    "question": "How can the digital owner manual for the Victoris be downloaded using the Maruti Suzuki mobile application?",
+    "expected_facts": [
+      "The Maruti Suzuki mobile application must be downloaded from the app store.",
+      "The registered mobile number must be verified using OTP.",
+      "The user should open the Offerings section.",
+      "The Owner's Manual option must be selected.",
+      "The manual can be downloaded using the download icon on the top right of the page."
+    ]
+  },
+  {
+    "question": "What driver assistance and visibility related exterior features are available on the Victoris?",
+    "expected_facts": [
+      "The vehicle may include DSBS II front cameras and radar.",
+      "Rearview cameras may be equipped on the vehicle.",
+      "Side cameras may be available.",
+      "Parking sensors are available for parking assistance.",
+      "LED or halogen headlight configurations may be equipped depending on the variant."
+    ]
+  },
+  {
+    "question": "What controls and systems are available around the Victoris instrument panel?",
+    "expected_facts": [
+      "The instrument panel includes hazard warning switch controls.",
+      "Remote audio controls are mounted on the steering wheel.",
+      "Cruise control or adaptive cruise control switches may be available.",
+      "The vehicle may include a head-up display.",
+      "Lane Keep Assist ON/OFF switch may be equipped.",
+      "The engine switch or power switch is located near the steering area."
+    ]
+  },
+  {
+    "question": "What safety warnings are provided regarding LPG or CNG usage in the Victoris?",
+    "expected_facts": [
+      "Retro-fitment of LPG/CNG kits may reduce vehicle performance and void warranty.",
+      "Domestic LPG cylinders must not be used in factory fitted LPG vehicles.",
+      "Usage of domestic LPG in vehicles is prohibited by law.",
+      "Company fitted LPG/CNG kits should not be removed and replaced with other kits.",
+      "Vehicles equipped with LPG/CNG should always carry a fire extinguisher."
+    ]
+  },
+  {
+    "question": "What precautions are recommended while refueling the Victoris?",
+    "expected_facts": [
+      "Cellular phones should not be used while refueling.",
+      "Static electricity buildup during refueling can ignite fuel vapors.",
+      "The driver should avoid entering the vehicle immediately after beginning refueling.",
+      "Fuel vapors may catch fire due to electrical discharge.",
+      "Fire risks increase near fuel and flammable fluids."
+    ]
+  },
+  {
+    "question": "What seating and interior safety features are highlighted in the Victoris manual?",
+    "expected_facts": [
+      "Side curtain airbags may be equipped.",
+      "Side airbags are available for front occupants.",
+      "Seat belts are provided for passengers.",
+      "Rearward facing child restraints should never be used in front of an active airbag.",
+      "Front airbags are provided for both driver and passenger."
+    ]
+  },
+  {
+    "question": "What convenience and cabin utility features are available inside the Victoris?",
+    "expected_facts": [
+      "USB charging sockets may be available for rear passengers.",
+      "Front and rear armrests may be equipped.",
+      "Accessory sockets are provided.",
+      "Electric mirror controls are available.",
+      "Electric window lock switches are available.",
+      "Heating and air conditioning controls are located in the front dashboard area."
+    ]
+  },
+  {
+    "question": "What customer assistance and roadside support services are available for Tata Tiago owners?",
+    "expected_facts": [
+      "Tata Motors provides an all India customer assistance center.",
+      "The toll free customer assistance number is 1800 209 8282.",
+      "Owners can contact the nearest Tata Motors dealer.",
+      "A 24x7 roadside assistance program is available.",
+      "Roadside assistance provides technical help during breakdown situations."
+    ]
+  },
+  {
+    "question": "What warnings and recommendations are given regarding vehicle modifications and servicing in the Tiago manual?",
+    "expected_facts": [
+      "Owners are advised to use genuine Tata Motors parts.",
+      "Non-genuine accessories and modifications should be avoided.",
+      "Service and repairs should be performed at authorized dealers or service centers.",
+      "Tata Motors does not accept liability caused by unauthorized modifications.",
+      "The owner manual should always be kept in the vehicle."
+    ]
+  },
+  {
+    "question": "How does the Tata Tiago Fully Automatic Temperature Control system operate?",
+    "expected_facts": [
+      "The vehicle may include a Fully Automatic Temperature Control system.",
+      "The FATC system automatically manages cabin temperature.",
+      "Air distribution and air vents are part of the climate control system.",
+      "Manual HVAC controls are also available in certain variants.",
+      "Climate control functionality is described under the climate control section of the manual."
+    ]
+  },
+  {
+    "question": "What starting and driving systems are described for the Tata Tiago?",
+    "expected_facts": [
+      "The vehicle supports starting and stopping with and without PEPS.",
+      "Engine passive start and stop conditions are described.",
+      "Gear shifting and reverse gear procedures are explained.",
+      "Driving modes are available in the vehicle.",
+      "AMT instructions and creeping functionality are included for AMT variants."
+    ]
+  },
+  {
+    "question": "What information does the Tiago manual provide about reverse parking and rear visibility assistance systems?",
+    "expected_facts": [
+      "Reverse Park Assist functionality is available in equipped variants.",
+      "Rear View Camera support is available in equipped variants.",
+      "The systems assist the driver while reversing or parking.",
+      "These features are included in the Starting and Driving section.",
+      "Rear visibility assistance improves parking safety and maneuvering."
+    ]
+  },
+  {
+    "question": "What maintenance checks should Tiago owners regularly perform under the maintenance section?",
+    "expected_facts": [
+      "Engine oil level should be checked regularly.",
+      "Brake fluid level inspection is required.",
+      "Engine coolant level should be monitored.",
+      "Windshield washer fluid level should be checked.",
+      "Battery condition and tyre condition require periodic inspection."
+    ]
+  },
+  {
+    "question": "What emergency and breakdown support procedures are included in the Tata Tiago manual?",
+    "expected_facts": [
+      "The manual explains spare wheel removal procedures.",
+      "Instructions are provided for handling flat tyres.",
+      "Jump starting procedures are included.",
+      "Vehicle towing guidance is provided.",
+      "Fuse handling and bulb specifications are documented."
+    ]
+  },
+  {
+    "question": "What anti-theft and security systems are available in the Tata Tiago?",
+    "expected_facts": [
+      "The vehicle includes an anti-theft device immobilizer.",
+      "Smart key functionality may be equipped.",
+      "Flip key features are available in certain variants.",
+      "Smart key systems support locking and unlocking functions.",
+      "Vehicle security features are described in the safety and opening sections."
+    ]
+  },
+  {
+    "question": "What dashboard and infotainment related controls are available in the Tata Tiago?",
+    "expected_facts": [
+      "The vehicle may include a digital display system.",
+      "Steering mounted controls are available in equipped variants.",
+      "USB ports and power sockets are provided.",
+      "The infotainment system display is available in certain variants.",
+      "Audio reminders and tell tales are integrated into the dashboard systems."
+    ]
+  },
+  {
+    "question": "What features and adjustments are available for driver comfort in the Tata Tiago?",
+    "expected_facts": [
+      "Seat adjustment features are provided.",
+      "Rear view mirrors can be adjusted.",
+      "The steering wheel adjustment feature is available.",
+      "Electric Power Assisted Steering is equipped in the vehicle.",
+      "Sun visors are available in equipped variants."
+    ]
+  },
+  {
+    "question": "How does the Toyota Land Cruiser 300 smart entry and start system function?",
+    "expected_facts": [
+      "The vehicle supports a smart entry and start system.",
+      "Doors can be locked and unlocked using the electronic key.",
+      "The engine can be started using the engine switch.",
+      "The system is described under opening, closing and locking the doors.",
+      "Electronic key operation is required for smart access functionality."
+    ]
+  },
+  {
+    "question": "What is the purpose of the Land Cruiser 300 double locking system and how does it improve security?",
+    "expected_facts": [
+      "The vehicle includes a double locking system.",
+      "The system is part of the theft deterrent features.",
+      "The feature is intended to improve vehicle security against unauthorized access.",
+      "Double locking functionality is described separately from the alarm system.",
+      "The vehicle also includes an engine immobilizer system and alarm system."
+    ]
+  },
+  {
+    "question": "What driving support systems are included in Toyota Safety Sense on the Land Cruiser 300?",
+    "expected_facts": [
+      "Toyota Safety Sense is available on the vehicle.",
+      "Pre-Collision System is included.",
+      "Lane Tracing Assist and Lane Departure Alert are included.",
+      "Road Sign Assist is supported.",
+      "Dynamic radar cruise control functionality is available."
+    ]
+  },
+  {
+    "question": "What off-road driving systems are available in the Toyota Land Cruiser 300?",
+    "expected_facts": [
+      "The vehicle includes a four-wheel drive system.",
+      "Front and rear differential lock systems are available.",
+      "Crawl Control with Turn Assist functionality is provided.",
+      "Multi-terrain Select is available.",
+      "Downhill assist control system supports off-road driving."
+    ]
+  },
+  {
+    "question": "How does the automatic air conditioning system operate in the Land Cruiser 300?",
+    "expected_facts": [
+      "The vehicle includes a front automatic air conditioning system.",
+      "Rear cooler or rear automatic air conditioning systems may be equipped.",
+      "Air conditioning controls are grouped under interior features.",
+      "Seat heaters and seat ventilators may be available.",
+      "Heated steering wheel functionality may also be equipped."
+    ]
+  },
+  {
+    "question": "What parking and low-speed maneuvering assistance systems are available in the Land Cruiser 300?",
+    "expected_facts": [
+      "Toyota parking assist-sensor is available.",
+      "Rear Cross Traffic Alert functionality is supported.",
+      "Parking Support Brake functions are available.",
+      "Rear camera detection systems are included.",
+      "Multi-terrain Monitor assists in vehicle surroundings visibility."
+    ]
+  },
+  {
+    "question": "What information does the Land Cruiser 300 record through onboard vehicle data systems?",
+    "expected_facts": [
+      "The vehicle records operational data using onboard computers.",
+      "Recorded data may include engine speed, accelerator status and brake status.",
+      "Vehicle speed and driving assist system operation may be recorded.",
+      "Camera images outside the vehicle may be stored in certain situations.",
+      "Toyota may use recorded data for diagnostics, research and quality improvement."
+    ]
+  },
+  {
+    "question": "What precautions are described regarding installation of non-genuine accessories or RF transmitters in the Land Cruiser 300?",
+    "expected_facts": [
+      "Non-genuine Toyota products may negatively affect safety and durability.",
+      "Unauthorized modifications may affect Toyota Safety Sense functionality.",
+      "Installing electronic devices can increase cyber attack risks.",
+      "RF transmitters may interfere with systems like ABS, SRS airbags and cruise control.",
+      "Toyota dealers should be consulted before installing RF transmitter systems."
+    ]
+  },
+  {
+    "question": "What emergency assistance procedures are included in the Land Cruiser 300 manual?",
+    "expected_facts": [
+      "Emergency flashers are described in the emergency section.",
+      "Procedures are provided for towing the vehicle.",
+      "Instructions are included for flat tire situations.",
+      "The manual explains how to respond if the vehicle overheats.",
+      "Guidance is provided for discharged battery conditions and engine starting problems."
+    ]
+  },
+  {
+    "question": "What child safety and occupant protection features are discussed in the Land Cruiser 300 manual?",
+    "expected_facts": [
+      "Seat belts are described under safe driving.",
+      "SRS airbags are included as occupant protection systems.",
+      "Child restraint systems are explained separately for India and non-India markets.",
+      "The manual includes guidance for riding with children.",
+      "Children should never be left unattended inside the vehicle."
+    ]
+  }
+]

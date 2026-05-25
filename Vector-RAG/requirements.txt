@@ -1,0 +1,8 @@
+google-genai
+pymongo
+pymupdf
+langchain-text-splitters
+mlflow
+pandas
+openai
+python-dotenv
