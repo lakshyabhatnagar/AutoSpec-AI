@@ -1,14 +1,9 @@
-import os
-from pymongo import MongoClient
+"""
+MongoDB connection — re-exports from the FastAPI app's centralized DB module.
 
-# Make sure dotenv is loaded so os.getenv retrieves the variables
-from dotenv import load_dotenv
-load_dotenv()
+This file exists for backward compatibility with standalone scripts
+(ingest.py, utils/feature_extraction.py) that import from utils.mongodb.
+"""
+from app.db.mongodb import chunk_collection as collection, feature_collection
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-
-client = MongoClient(MONGO_URI)
-
-db = client["vectordb"]
-
-collection = db["llm-documents-30per-overlap"]
+__all__ = ["collection", "feature_collection"]

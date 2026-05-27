@@ -1,95 +1,78 @@
-import os
+"""
+CLI client for running MLflow evaluation via the FastAPI /evaluate endpoint.
+
+Usage:
+    python evaluate_rag.py                                     # default settings
+    python evaluate_rag.py --mode hybrid_rerank                # specific mode
+    python evaluate_rag.py --run-name my_experiment_v2         # custom run name
+    python evaluate_rag.py --dataset custom_eval_dataset.json  # custom dataset
+
+Requires the FastAPI server to be running:
+    uvicorn app.main:app --reload --port 8000
+"""
+import argparse
 import json
-import mlflow
-from mlflow.genai.scorers import (
-    RetrievalRelevance,
-    RetrievalSufficiency,
-    RetrievalGroundedness
-)
-from test_rag_pipeline import search_vector_db
-from utils.test_generation import generate_final_response
-from dotenv import load_dotenv
+import sys
+import requests
 
-load_dotenv()
+API_BASE = "http://127.0.0.1:8000"
 
-# Provider API key mappings — MLflow looks for specific env vars per provider.
-# GOOGLE_API_KEY → GEMINI_API_KEY (for gemini:/ provider)
-if "GEMINI_API_KEY" not in os.environ and "GOOGLE_API_KEY" in os.environ:
-    os.environ["GEMINI_API_KEY"] = os.environ["GOOGLE_API_KEY"]
 
-# Resolve VERTEX_CREDENTIALS to absolute path (dotenv loads relative paths as-is)
-if creds := os.environ.get("VERTEX_CREDENTIALS"):
-    abs_creds = os.path.abspath(creds)
-    if os.path.isfile(abs_creds):
-        os.environ["VERTEX_CREDENTIALS"] = abs_creds
+def _check_server():
+    try:
+        r = requests.get(f"{API_BASE}/health", timeout=3)
+        r.raise_for_status()
+        return True
+    except Exception:
+        print("ERROR: FastAPI server is not running.")
+        print("Start it with: uvicorn app.main:app --reload --port 8000")
+        return False
 
-# Configuration
-EVAL_DATASET = "eval_dataset.json"
-EXPERIMENT_NAME = "Automotive-RAG-Eval"
 
-# Judge model URI — format: <provider>:/<model-name>
-# Examples: vertex_ai:/gemini-2.0-flash-lite, openrouter:/gpt-4o-mini, gemini:/gemini-2.0-flash
-JUDGE_MODEL = os.getenv("JUDGE_MODEL", "vertex_ai:/gemini-2.0-flash-lite")
+def run_evaluation(dataset: str, mode: str, run_name: str = None):
+    payload = {"dataset": dataset, "mode": mode}
+    if run_name:
+        payload["run_name"] = run_name
 
-mlflow.set_experiment(EXPERIMENT_NAME)
+    print(f"Triggering MLflow evaluation...")
+    print(f"  Dataset: {dataset}")
+    print(f"  Mode: {mode}")
+    print(f"  Run Name: {run_name or '(auto-generated)'}")
+    print()
 
-def load_dataset(file_path):
-    with open(file_path, "r") as f:
-        return json.load(f)
+    try:
+        r = requests.post(f"{API_BASE}/evaluate", json=payload, timeout=600)
+        r.raise_for_status()
+        result = r.json()
 
-@mlflow.trace
-def rag_agent(query: str):
-    """
-    Root trace for the RAG pipeline.
-    1. Retrieves documents (traced as RETRIEVER span)
-    2. Generates a grounded answer (traced as LLM span)
-    Returns the generated answer so groundedness can be evaluated.
-    """
-    retrieved_docs = search_vector_db(query, k=5)
+        print(f"Status: {result['status']}")
+        print(f"Run Name: {result['run_name']}")
 
-    # Generate a grounded answer from the retrieved context
-    answer = generate_final_response(query, retrieved_docs)
+        if result.get("run_id"):
+            print(f"Run ID: {result['run_id']}")
 
-    return {"response": answer}
+        if result.get("metrics"):
+            print("\nEvaluation Results:")
+            for metric, value in result["metrics"].items():
+                print(f"  {metric}: {value:.4f}")
+        elif result.get("error"):
+            print(f"\nError: {result['error']}")
 
-def run_evaluation():
-    dataset = load_dataset(EVAL_DATASET)
-    
-    # Build evaluation dataset with correct schema:
-    # - inputs: dict with key matching predict_fn parameter name
-    # - expectations: dict with expected_facts as a LIST (not joined string)
-    eval_dataset = []
-    for item in dataset:
-        eval_dataset.append({
-            "inputs": {"query": item["question"]},
-            "expectations": {
-                "expected_facts": item["expected_facts"]  # keep as list
-            }
-        })
+    except requests.exceptions.RequestException as e:
+        print(f"API error: {e}")
+        sys.exit(1)
 
-    # Scorers using the configured judge model
-    relevance = RetrievalRelevance(model=JUDGE_MODEL)
-    sufficiency = RetrievalSufficiency(model=JUDGE_MODEL)
-    groundedness = RetrievalGroundedness(model=JUDGE_MODEL)
-    
-    with mlflow.start_run(run_name="bm25+vector_dw2.0_bw0.1_dk20_bk1_fk15_rrf100_nc1000_reranking"):
-        mlflow.log_param("judge_model", JUDGE_MODEL)
-        
-        eval_results = mlflow.genai.evaluate(
-            data=eval_dataset,
-            predict_fn=rag_agent,
-            scorers=[
-                relevance,
-                sufficiency,
-                groundedness
-            ],
-        )
-        
-        print("\nEvaluation Results:")
-        print(eval_results.metrics)
 
 if __name__ == "__main__":
-    if not os.path.exists(EVAL_DATASET):
-        print(f"Dataset {EVAL_DATASET} not found. Please create it first.")
-    else:
-        run_evaluation()
+    parser = argparse.ArgumentParser(description="Run MLflow evaluation via FastAPI.")
+    parser.add_argument("--dataset", type=str, default="eval_dataset.json", help="Evaluation dataset file")
+    parser.add_argument("--mode", type=str, default="hybrid_rerank",
+                        choices=["semantic", "bm25", "hybrid", "hybrid_rerank"],
+                        help="Retrieval mode to evaluate")
+    parser.add_argument("--run-name", type=str, default=None, help="MLflow run name")
+    args = parser.parse_args()
+
+    if not _check_server():
+        sys.exit(1)
+
+    run_evaluation(args.dataset, args.mode, args.run_name)

@@ -1,68 +1,28 @@
-import os
-import mlflow
-from google import genai
-from dotenv import load_dotenv
+"""
+Generation utility — re-exports from the FastAPI app's query service.
 
-load_dotenv()
+This file exists for backward compatibility with any scripts
+that import generate_final_response from utils.test_generation.
 
-# Resolve credentials for Vertex AI authentication
-_creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS", "")
-if _creds_path and not os.path.isabs(_creds_path):
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath(_creds_path)
-
-# Use the same Vertex AI Gemini setup as embeddings.py
-_client = genai.Client(
-    vertexai=True,
-    project="ppp-v4",
-    location="us-central1"
-)
-
-GENERATION_MODEL = os.getenv("GENERATION_MODEL", "gemini-2.5-flash-lite")
-
-SYSTEM_PROMPT = (
-    "You are an automotive owner's manual assistant. "
-    "Answer ONLY using the provided retrieved context. "
-    "If the answer is not present in the context, say: "
-    '"The answer is not available in the retrieved context." '
-    "Do not use external knowledge. Be concise and factual."
-)
+Note: The FastAPI app uses its own internal generation function.
+This wrapper adapts it to accept mlflow.entities.Document objects
+for backward compatibility with legacy callers.
+"""
+from app.services.query_service import _generate_answer
+from app.retrieval.base import RetrievalResult
 
 
-@mlflow.trace(span_type="LLM")
 def generate_final_response(query, retrieved_docs):
     """
-    Generate a grounded answer using Vertex AI Gemini.
-
-    Args:
-        query: The user's question.
-        retrieved_docs: List of mlflow.entities.Document objects from the retriever.
-
-    Returns:
-        The generated answer string, grounded in the retrieved context.
+    Backward-compatible wrapper that accepts mlflow.entities.Document objects
+    and delegates to the centralized generation function.
     """
-    # Build context from Document objects
-    context_parts = []
-    for i, doc in enumerate(retrieved_docs, 1):
-        context_parts.append(f"[Chunk {i}]\n{doc.page_content}")
-    context = "\n\n".join(context_parts)
+    # Convert Document objects → RetrievalResult objects
+    chunks = [
+        RetrievalResult(text=doc.page_content, metadata=doc.metadata or {})
+        for doc in retrieved_docs
+    ]
+    return _generate_answer(query, chunks)
 
-    if not context.strip():
-        return "No relevant context was retrieved to answer this question."
 
-    prompt = (
-        f"Context:\n{context}\n\n"
-        f"Question: {query}\n\n"
-        f"Answer:"
-    )
-
-    response = _client.models.generate_content(
-        model=GENERATION_MODEL,
-        contents=prompt,
-        config={
-            "system_instruction": SYSTEM_PROMPT,
-            "temperature": 0.0,
-            "max_output_tokens": 512,
-        }
-    )
-
-    return response.text
+__all__ = ["generate_final_response"]
