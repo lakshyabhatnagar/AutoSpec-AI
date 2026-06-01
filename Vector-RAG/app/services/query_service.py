@@ -44,6 +44,59 @@ _SYSTEM_PROMPT = (
     "Do not use external knowledge. Be concise and factual."
 )
 
+_CRITICAL_SYSTEM_PROMPT = """
+You are an automotive owner's manual assistant.
+Your goal is to answer the user query based ONLY on the provided context, and format your output as a single, valid JSON object. 
+
+### Output Format Schema
+Your response must be a JSON object with the following structure:
+{
+  "answer": "A factual, concise natural language answer to the user question based on the retrieved context.",
+  "card": {
+    "type": "table" | "steps" | "alert" | null,
+    "title": "A short, meaningful title for the card.",
+    "brand": "The vehicle brand if specified in the context, else null",
+    "model": "The vehicle model if specified in the context, else null",
+    
+    // Populate ONLY if type is "table"
+    "table_data": {
+      "headers": ["Column Header 1", "Column Header 2"],
+      "rows": [
+        ["Row 1 Col 1", "Row 1 Col 2"],
+        ["Row 2 Col 1", "Row 2 Col 2"]
+      ]
+    },
+    
+    // Populate ONLY if type is "steps"
+    "steps_data": {
+      "title": "Optional Title",
+      "steps": [
+        { "step_number": 1, "action": "string", "caution": "string or null" }
+      ]
+    },
+    
+    // Populate ONLY if type is "alert"
+    "alert_data": {
+      "risk_level": "low" | "medium" | "high" | "critical",
+      "warnings": ["Warning 1"],
+      "prohibited_actions": ["Prohibited action 1"],
+      "precautions": ["Precaution 1"]
+    }
+  }
+}
+
+### Critical Instructions:
+1. Grounding: Answer ONLY using the provided retrieved context. Do not use external knowledge. 
+2. Unavailable Information: If the answer is not present in the context, set "answer" to: "The answer is not available in the retrieved context." and set "card" to null.
+3. Card Selection & Relevance Filtering:
+   - YOU MUST generate a "card" whenever there is structured data, lists, or warnings.
+   - DO NOT put markdown tables or markdown lists in the "answer" field. The "answer" MUST be pure conversational text. All structured data MUST go in the "card" object!
+   - Choose "table" for ANY specifications, service intervals, maintenance schedules, or warranty lists. Ensure columns are dynamically generated to fit the nature of the data. (e.g. ["Item", "Interval", "Action"])
+   - Choose "steps" for procedures or sequences (e.g., how to jumpstart).
+   - Choose "alert" for safety warnings and malfunctions.
+4. Output only valid JSON. No markdown wrappers.
+"""
+
 # ── Query router (lightweight Gemini call) ────────────────────────────────
 _ROUTER_PROMPT = """
 You are a highly precise intent classification router for an automotive RAG system.
@@ -105,6 +158,35 @@ def _generate_answer(query: str, chunks: list[RetrievalResult]) -> str:
     return response.text
 
 
+def _generate_critical_answer(query: str, chunks: list[RetrievalResult]) -> tuple[str, Optional[dict]]:
+    """Generate a grounded answer and a UI card from retrieved chunks."""
+    context_parts = [f"[Chunk {i}]\n{c.text}" for i, c in enumerate(chunks, 1)]
+    context = "\n\n".join(context_parts)
+
+    if not context.strip():
+        return "No relevant context was retrieved to answer this question.", None
+
+    prompt = f"Context:\n{context}\n\nQuestion: {query}\n\nIMPORTANT: You MUST generate a JSON 'card' object containing the structured data. Do NOT put markdown tables in the 'answer' string. Output JSON:"
+
+    try:
+        response = _gen_client.models.generate_content(
+            model=settings.GENERATION_MODEL,
+            contents=prompt,
+            config={
+                "system_instruction": _CRITICAL_SYSTEM_PROMPT,
+                "temperature": 0.0,
+                "max_output_tokens": 1024,
+                "response_mime_type": "application/json",
+            },
+        )
+        data = json.loads(response.text)
+        return data.get("answer", ""), data.get("card", None)
+    except Exception as e:
+        logger.error(f"Critical generation failed: {e}")
+        return "An error occurred during response generation.", None
+
+
+
 # ── Public API ────────────────────────────────────────────────────────────
 def handle_query(
     query: str,
@@ -132,10 +214,10 @@ def handle_critical_query(
     k: int = 5,
     brand_filter: Optional[str] = None,
     model_filter: Optional[str] = None,
-) -> tuple[str, list[RetrievalResult], bool, Optional[str]]:
+) -> tuple[str, list[RetrievalResult], bool, Optional[str], Optional[dict]]:
     """
     Critical query flow: classify → feature-store-first retrieval → generate.
-    Returns (answer, chunks, is_critical, category).
+    Returns (answer, chunks, is_critical, category, ui_card).
     """
     intent = classify_query(query)
     is_critical = intent["is_critical"]
@@ -144,15 +226,17 @@ def handle_critical_query(
     logger.info(f"Critical query: '{query}' | is_critical={is_critical} | category={category}")
 
     if is_critical:
-        chunks = _critical_retriever.retrieve(query, k=k, brand_filter=brand_filter, model_filter=model_filter)
+        chunks = _critical_retriever.retrieve(query, k=k, brand_filter=brand_filter, model_filter=model_filter, category=category)
+        answer, ui_card = _generate_critical_answer(query, chunks)
     else:
         # Fall back to hybrid_rerank for non-critical queries
         chunks = _retrievers[RetrievalMode.hybrid_rerank].retrieve(
             query, k=k, brand_filter=brand_filter, model_filter=model_filter
         )
+        answer = _generate_answer(query, chunks)
+        ui_card = None
 
-    answer = _generate_answer(query, chunks)
-    return answer, chunks, is_critical, category
+    return answer, chunks, is_critical, category, ui_card
 
 
 def handle_debug_retrieve(

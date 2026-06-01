@@ -8,9 +8,10 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.retrieval.bm25 import bm25_index
-from app.retrieval.critical import feature_bm25_index
+from app.retrieval.critical import feature_bm25_index, tables_bm25_index
 from app.routes import health, query, debug, evaluate, ingest, feature_store
 
 # ── Logging ───────────────────────────────────────────────────────────────
@@ -29,6 +30,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting RAG backend — building BM25 indexes...")
     bm25_index.build()
     feature_bm25_index.build()
+    tables_bm25_index.build()
     logger.info("All indexes ready. Server is accepting requests.")
     yield
     logger.info("Shutting down RAG backend.")
@@ -44,6 +46,15 @@ app = FastAPI(
     ),
     version="1.0.0",
     lifespan=lifespan,
+)
+
+# ── CORS (allow Next.js frontend) ─────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register routers

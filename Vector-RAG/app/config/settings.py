@@ -17,7 +17,9 @@ class Settings(BaseSettings):
     MONGO_URI: str = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
     MONGO_DB_NAME: str = "vectordb"
     CHUNK_COLLECTION: str = "llm-documents-30per-overlap"
+    TABLE_COLLECTION: str = "tables-data"
     FEATURE_COLLECTION: str = "feature-store"
+    FEATURE_COLLECTION_V2: str = "feature-store-v2"
 
     # Vertex AI
     VERTEX_PROJECT: str = os.getenv("VERTEX_PROJECT", "ppp-v4")

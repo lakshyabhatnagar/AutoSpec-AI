@@ -43,6 +43,8 @@ class HybridRerankRetriever(BaseRetriever):
             logger.warning("Voyage AI client not configured. Returning RRF results.")
             return fused[:k]
 
+        # TEMPORARILY DISABLED: Voyage AI is down. Returning RRF results directly.
+        """
         try:
             texts = [r.text for r in fused]
             rerank_response = _vo_client.rerank(
@@ -64,3 +66,5 @@ class HybridRerankRetriever(BaseRetriever):
         except Exception as e:
             logger.error(f"Voyage AI reranking failed: {e}. Falling back to RRF.")
             return fused[:k]
+        """
+        return fused[:k]

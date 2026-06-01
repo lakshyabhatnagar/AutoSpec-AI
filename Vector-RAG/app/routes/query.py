@@ -25,6 +25,7 @@ def _to_chunk_schema(r) -> RetrievedChunk:
             score=r.score,
             chunk_id=r.metadata.get("chunk_id"),
             is_feature_record=r.is_feature_record,
+            structured_data=r.metadata.get("structured_data"),
         ),
     )
 
@@ -54,7 +55,7 @@ def query(req: QueryRequest):
 def critical_query(req: CriticalQueryRequest):
     """High-precision critical retrieval via feature-store prioritization."""
     try:
-        answer, chunks, is_critical, category = query_service.handle_critical_query(
+        answer, chunks, is_critical, category, ui_card = query_service.handle_critical_query(
             query=req.query,
             k=req.k,
             brand_filter=req.brand_filter,
@@ -66,6 +67,7 @@ def critical_query(req: CriticalQueryRequest):
             category=category,
             retrieved_chunks=[_to_chunk_schema(c) for c in chunks],
             chunk_count=len(chunks),
+            ui_card=ui_card,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

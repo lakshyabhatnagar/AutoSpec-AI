@@ -65,6 +65,7 @@ class SemanticRetriever(BaseRetriever):
                     "car_model": 1, "car_year_start": 1, "car_year_end": 1,
                     "supported_years": 1, "section_heading": 1,
                     "subsection_heading": 1, "page_number": 1,
+                    "score": {"$meta": "vectorSearchScore"}
                 }
             },
         ]
@@ -88,7 +89,7 @@ class SemanticRetriever(BaseRetriever):
                     "page": r.get("page_number"),
                     "chunk_id": r.get("chunk_id"),
                 },
-                score=1.0 / (idx + 1),  # pseudo-score based on rank
+                score=r.get("score", 1.0 / (idx + 1)),  # fallback to rank if missing
                 source="dense",
             )
             for idx, r in enumerate(results)

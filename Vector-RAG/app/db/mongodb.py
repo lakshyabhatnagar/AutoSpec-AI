@@ -18,6 +18,7 @@ _sync_client = MongoClient(settings.MONGO_URI)
 sync_db = _sync_client[settings.MONGO_DB_NAME]
 chunk_collection = sync_db[settings.CHUNK_COLLECTION]
 feature_collection = sync_db[settings.FEATURE_COLLECTION]
+feature_collection_v2 = sync_db[settings.FEATURE_COLLECTION_V2]
 
 # ── Async client (Motor) ─────────────────────────────────────────────────
 _async_client = AsyncIOMotorClient(settings.MONGO_URI)

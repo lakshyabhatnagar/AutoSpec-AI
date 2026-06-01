@@ -14,6 +14,22 @@ class RetrievalMode(str, Enum):
     hybrid_rerank = "hybrid_rerank"
 
 
+class SeverityLevel(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+
+class MaintenanceActionCode(str, Enum):
+    R = "R"  # Replace
+    I = "I"  # Inspect
+    C = "C"  # Clean
+    L = "L"  # Lubricate
+    T = "T"  # Tighten
+    CHECK = "CHECK" # generic check
+
+
 # ── Request Schemas ───────────────────────────────────────────────────────
 class QueryRequest(BaseModel):
     query: str = Field(..., min_length=1, description="User question")
@@ -60,6 +76,39 @@ class ChunkMetadata(BaseModel):
     score: Optional[float] = None
     chunk_id: Optional[Any] = None
     is_feature_record: bool = False
+    structured_data: Optional[dict[str, Any]] = None
+
+
+# ── Feature Store Extraction Schemas ──────────────────────────────────────
+class StructuredRecord(BaseModel):
+    category: str = Field(..., description="E.g. Maintenance Schedules, Safety and Security, Warranty, etc.")
+    semantic_text: str = Field(..., description="Natural language summary of this specific extracted fact.")
+    
+    # Common structured fields (populated depending on category)
+    maintenance_item: Optional[str] = None
+    action_code: Optional[MaintenanceActionCode] = None
+    action_display: Optional[str] = None
+    interval_km: Optional[int] = None
+    interval_months: Optional[int] = None
+    condition: Optional[str] = None
+    
+    severity: Optional[SeverityLevel] = None
+    symptoms: Optional[list[str]] = None
+    possible_causes: Optional[list[str]] = None
+    recommended_actions: Optional[list[str]] = None
+    
+    warnings: Optional[list[str]] = None
+    prohibited_actions: Optional[list[str]] = None
+    precautions: Optional[list[str]] = None
+    
+    duration: Optional[str] = None
+    covered_parts: Optional[list[str]] = None
+    exclusions: Optional[list[str]] = None
+    
+    emergency_steps: Optional[list[str]] = None
+
+class FeatureStoreRecords(BaseModel):
+    records: list[StructuredRecord]
 
 
 class RetrievedChunk(BaseModel):
@@ -80,6 +129,7 @@ class CriticalQueryResponse(BaseModel):
     category: Optional[str]
     retrieved_chunks: list[RetrievedChunk]
     chunk_count: int
+    ui_card: Optional[dict[str, Any]] = None
 
 
 class DebugChunk(BaseModel):

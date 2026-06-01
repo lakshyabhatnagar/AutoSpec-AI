@@ -113,4 +113,4 @@ def run_extraction_pipeline(start_index: int = 0):
 if __name__ == "__main__":
     # You can change the start_index to resume from a specific chunk index if it crashes.
     # For example, to resume from chunk 540, set start_index=539.
-    run_extraction_pipeline(start_index=539)
+    run_extraction_pipeline(start_index=1760)
