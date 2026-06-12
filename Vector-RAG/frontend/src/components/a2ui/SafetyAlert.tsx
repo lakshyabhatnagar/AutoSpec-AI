@@ -1,12 +1,12 @@
 "use client";
 import type { SafetyAlertData } from "@/types/a2ui";
-import { AlertTriangle, ShieldAlert, Ban } from "lucide-react";
+import { AlertTriangle, Ban, ShieldAlert } from "lucide-react";
 
 const severityConfig = {
-  critical: { bg: "bg-red-500/10", border: "border-red-500/40", headerBg: "bg-red-500/20", text: "text-red-300", icon: ShieldAlert, label: "CRITICAL CONCERN" },
-  high: { bg: "bg-orange-500/10", border: "border-orange-500/40", headerBg: "bg-orange-500/20", text: "text-orange-300", icon: AlertTriangle, label: "HIGH CONCERN" },
-  medium: { bg: "bg-amber-500/10", border: "border-amber-500/40", headerBg: "bg-amber-500/20", text: "text-amber-300", icon: AlertTriangle, label: "MODERATE CONCERN" },
-  low: { bg: "bg-emerald-500/10", border: "border-emerald-500/40", headerBg: "bg-emerald-500/20", text: "text-emerald-400", icon: AlertTriangle, label: "LOW CONCERN" },
+  critical: { bg: "bg-red-950/10", border: "border-red-900/70", headerBg: "bg-red-950/20", text: "text-red-300", icon: ShieldAlert, label: "CRITICAL" },
+  high: { bg: "bg-orange-950/10", border: "border-orange-900/70", headerBg: "bg-orange-950/20", text: "text-orange-300", icon: AlertTriangle, label: "HIGH" },
+  medium: { bg: "bg-amber-950/10", border: "border-amber-900/70", headerBg: "bg-amber-950/20", text: "text-amber-300", icon: AlertTriangle, label: "MEDIUM" },
+  low: { bg: "bg-emerald-950/10", border: "border-emerald-900/70", headerBg: "bg-emerald-950/20", text: "text-emerald-300", icon: AlertTriangle, label: "LOW" },
 };
 
 export function SafetyAlert({ data }: { data: SafetyAlertData }) {
@@ -14,7 +14,7 @@ export function SafetyAlert({ data }: { data: SafetyAlertData }) {
   const Icon = cfg.icon;
 
   return (
-    <div className={`rounded-xl border ${cfg.border} ${cfg.bg} backdrop-blur overflow-hidden`}>
+    <div className={`overflow-hidden rounded-lg border ${cfg.border} ${cfg.bg}`}>
       <div className={`px-4 py-3 flex items-center gap-2 border-b ${cfg.border} ${cfg.headerBg}`}>
         <Icon className={`h-5 w-5 ${cfg.text}`} />
         <h3 className={`text-sm font-bold ${cfg.text}`}>Safety Warning</h3>
@@ -25,7 +25,7 @@ export function SafetyAlert({ data }: { data: SafetyAlertData }) {
       <div className="p-4 space-y-3">
         {data.warnings.length > 0 && (
           <div>
-            <h4 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">⚠ Warnings</h4>
+            <h4 className="mb-1 text-xs font-medium uppercase text-zinc-500">Warnings</h4>
             <ul className="space-y-1">
               {data.warnings.map((w, i) => (
                 <li key={i} className={`text-sm ${cfg.text}`}>{w}</li>
@@ -41,7 +41,7 @@ export function SafetyAlert({ data }: { data: SafetyAlertData }) {
             <ul className="space-y-1">
               {data.prohibited_actions.map((a, i) => (
                 <li key={i} className="text-sm text-red-300 flex items-start gap-2">
-                  <span className="text-red-400 mt-0.5">✗</span> {a}
+                  <Ban className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" /> {a}
                 </li>
               ))}
             </ul>

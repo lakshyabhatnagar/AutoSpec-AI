@@ -9,7 +9,6 @@ Uses category-aware routing:
 import logging
 from typing import Optional
 
-import voyageai
 from rank_bm25 import BM25Okapi
 
 from app.config.settings import settings
@@ -20,8 +19,6 @@ from app.retrieval.semantic import SemanticRetriever
 from app.retrieval.bm25 import BM25Retriever, bm25_index
 
 logger = logging.getLogger("rag.retrieval.critical")
-
-_vo_client = voyageai.Client(api_key=settings.VOYAGE_API_KEY) if settings.VOYAGE_API_KEY else None
 
 # Categories that should route to tables-data
 TABLES_DATA_CATEGORIES = {"Maintenance Schedules", "Inspection Schedules", "Warranty"}

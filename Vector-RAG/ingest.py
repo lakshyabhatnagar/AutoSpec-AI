@@ -9,7 +9,8 @@ from utils.embeddings import generate_embedding
 from utils.mongodb import collection
 
 PDF_ROOT = "../Manuals"
-CHUNKING_MODE = "llm_semantic" # Options: "recursive", "contextual", "layout_contextual", "llm_semantic"
+TARGET_FILE = "Tiago_2025.pdf"
+CHUNKING_MODE = "llm_semantic"  # Options: "contextual", "layout_contextual", "llm_semantic"
 
 def ingest_manuals():
     for root, dirs, files in os.walk(PDF_ROOT):
@@ -17,7 +18,7 @@ def ingest_manuals():
             if not file.endswith(".pdf"):
                 continue
                 
-            if file != "Tiago_2025.pdf":
+            if file != TARGET_FILE:
                 continue
 
             # Skip duplicate PDFs

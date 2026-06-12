@@ -3,17 +3,17 @@ import type { MalfunctionCardData } from "@/types/a2ui";
 import { Stethoscope, Activity, FileWarning, Search } from "lucide-react";
 
 const severityColors = {
-  critical: { bg: "bg-red-500/10", border: "border-red-500/40", headerBg: "bg-red-500/20", text: "text-red-300", label: "CRITICAL CONCERN" },
-  high: { bg: "bg-orange-500/10", border: "border-orange-500/40", headerBg: "bg-orange-500/20", text: "text-orange-300", label: "HIGH CONCERN" },
-  medium: { bg: "bg-amber-500/10", border: "border-amber-500/40", headerBg: "bg-amber-500/20", text: "text-amber-300", label: "MODERATE CONCERN" },
-  low: { bg: "bg-yellow-500/10", border: "border-yellow-500/40", headerBg: "bg-yellow-500/20", text: "text-yellow-400", label: "LOW CONCERN" },
+  critical: { bg: "bg-red-950/10", border: "border-red-900/70", headerBg: "bg-red-950/20", text: "text-red-300", label: "CRITICAL" },
+  high: { bg: "bg-orange-950/10", border: "border-orange-900/70", headerBg: "bg-orange-950/20", text: "text-orange-300", label: "HIGH" },
+  medium: { bg: "bg-amber-950/10", border: "border-amber-900/70", headerBg: "bg-amber-950/20", text: "text-amber-300", label: "MEDIUM" },
+  low: { bg: "bg-yellow-950/10", border: "border-yellow-900/70", headerBg: "bg-yellow-950/20", text: "text-yellow-300", label: "LOW" },
 };
 
 export function MalfunctionCard({ data }: { data: MalfunctionCardData }) {
   const sevConfig = severityColors[data.severity];
 
   return (
-    <div className={`rounded-xl border ${sevConfig.border} ${sevConfig.bg} backdrop-blur overflow-hidden`}>
+    <div className={`overflow-hidden rounded-lg border ${sevConfig.border} ${sevConfig.bg}`}>
       <div className={`flex items-center gap-2 px-4 py-3 border-b ${sevConfig.border} ${sevConfig.headerBg}`}>
         <Stethoscope className={`h-5 w-5 ${sevConfig.text}`} />
         <h3 className={`text-sm font-bold ${sevConfig.text}`}>

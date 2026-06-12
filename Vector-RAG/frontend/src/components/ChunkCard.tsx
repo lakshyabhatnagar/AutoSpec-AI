@@ -16,12 +16,12 @@ export function ChunkCard({ chunk, isDebug = false }: ChunkCardProps) {
   const debugChunk = isDebug ? (chunk as DebugChunk) : null;
 
   return (
-    <div className="rounded-lg border border-zinc-700/60 bg-zinc-800/40 overflow-hidden text-sm">
+    <div className="overflow-hidden rounded-3xl bg-white/[0.045] text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl ring-1 ring-white/8">
       <div 
-        className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-zinc-700/40 transition-colors"
+        className="flex cursor-pointer items-center gap-3 px-3 py-2.5 transition-colors hover:bg-white/[0.055]"
         onClick={() => setExpanded(!expanded)}
       >
-        <button className="text-zinc-400 hover:text-zinc-200">
+        <button className="text-zinc-500 hover:text-zinc-200" aria-label={expanded ? "Collapse chunk" : "Expand chunk"}>
           {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
 
@@ -36,15 +36,15 @@ export function ChunkCard({ chunk, isDebug = false }: ChunkCardProps) {
         {/* Badges */}
         <div className="flex items-center gap-2 flex-shrink-0">
           {m.is_feature_record && (
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
+            <span className="rounded-full bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-300">
               Feature Store
             </span>
           )}
           {isDebug && debugChunk && (
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider ${
-              debugChunk.retrieval_source === "semantic" ? "bg-blue-500/20 text-blue-300 border-blue-500/30" :
-              debugChunk.retrieval_source === "bm25" ? "bg-purple-500/20 text-purple-300 border-purple-500/30" :
-              "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
+              debugChunk.retrieval_source === "semantic" ? "bg-sky-300/10 text-sky-300" :
+              debugChunk.retrieval_source === "bm25" ? "bg-violet-300/10 text-violet-300" :
+              "bg-emerald-300/10 text-emerald-300"
             }`}>
               {debugChunk.retrieval_source}
             </span>
@@ -62,7 +62,7 @@ export function ChunkCard({ chunk, isDebug = false }: ChunkCardProps) {
       </div>
 
       {expanded && (
-        <div className="px-4 py-3 bg-zinc-900/50 border-t border-zinc-700/50 space-y-3">
+        <div className="space-y-3 bg-black/12 px-4 py-3">
           {/* Metadata Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
             {m.years && (
@@ -92,11 +92,11 @@ export function ChunkCard({ chunk, isDebug = false }: ChunkCardProps) {
             )}
           </div>
           
-          <div className="w-full h-px bg-zinc-800" />
+          <div className="h-px w-full bg-white/8" />
           
           {/* Content */}
           <div className="prose prose-sm prose-invert max-w-none">
-            <div className="whitespace-pre-wrap text-zinc-300 font-mono text-xs leading-relaxed bg-black/40 p-3 rounded border border-zinc-800">
+            <div className="rounded-2xl bg-black/20 p-3 font-mono text-xs leading-relaxed text-zinc-300 whitespace-pre-wrap shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
               {chunk.page_content}
             </div>
           </div>

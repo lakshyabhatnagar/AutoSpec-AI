@@ -19,9 +19,9 @@ export function MaintenanceTable({ data }: { data: MaintenanceTableData }) {
   };
 
   return (
-    <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/80 backdrop-blur overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-700/50 bg-zinc-800/50">
-        <Wrench className="h-4 w-4 text-amber-400" />
+    <div className="overflow-hidden rounded-lg border border-zinc-800 bg-[var(--app-surface)]">
+      <div className="flex items-center gap-2 border-b border-zinc-800 bg-zinc-950/50 px-4 py-3">
+        <Wrench className="h-4 w-4 text-zinc-500" />
         <h3 className="text-sm font-semibold text-zinc-200">Maintenance Schedule</h3>
         <span className="ml-auto text-xs text-zinc-500">{data.items.length} items</span>
       </div>
@@ -47,12 +47,12 @@ export function MaintenanceTable({ data }: { data: MaintenanceTableData }) {
                 <td className="px-4 py-3 text-zinc-400 whitespace-nowrap">{item.interval_km ?? "—"}</td>
                 <td className="px-4 py-3 text-zinc-400 whitespace-nowrap">{item.interval_months ?? "—"}</td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <span className={`inline-block px-2.5 py-1 rounded-md text-xs font-semibold tracking-wide ${item.action_code === "R" ? "bg-red-500/20 text-red-300 border border-red-500/30" :
-                      item.action_code === "I" ? "bg-amber-500/20 text-amber-300 border border-amber-500/30" :
-                        item.action_code === "C" ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30" :
-                          item.action_code === "L" ? "bg-purple-500/20 text-purple-300 border border-purple-500/30" :
-                            item.action_code === "T" ? "bg-teal-500/20 text-teal-300 border border-teal-500/30" :
-                              "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                  <span className={`inline-block rounded-md px-2.5 py-1 text-xs font-semibold ${item.action_code === "R" ? "border border-red-900/70 bg-red-950/30 text-red-300" :
+                      item.action_code === "I" ? "border border-amber-900/70 bg-amber-950/30 text-amber-300" :
+                        item.action_code === "C" ? "border border-cyan-900/70 bg-cyan-950/30 text-cyan-300" :
+                          item.action_code === "L" ? "border border-violet-900/70 bg-violet-950/30 text-violet-300" :
+                            item.action_code === "T" ? "border border-teal-900/70 bg-teal-950/30 text-teal-300" :
+                              "border border-sky-900/70 bg-sky-950/30 text-sky-300"
                     }`}>{item.action_display || item.action_code || "—"}</span>
                 </td>
                 <td className="px-4 py-3 text-zinc-500 text-xs whitespace-nowrap">{item.variant || "All"}</td>

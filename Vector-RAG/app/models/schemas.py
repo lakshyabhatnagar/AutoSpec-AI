@@ -32,36 +32,57 @@ class MaintenanceActionCode(str, Enum):
 
 # ── Request Schemas ───────────────────────────────────────────────────────
 class QueryRequest(BaseModel):
-    query: str = Field(..., min_length=1, description="User question")
+    query: str = Field(..., min_length=1, max_length=4000, description="User question")
     mode: RetrievalMode = Field(RetrievalMode.hybrid_rerank, description="Retrieval mode")
-    brand_filter: Optional[str] = Field(None, description="Filter by vehicle brand")
-    model_filter: Optional[str] = Field(None, description="Filter by vehicle model")
+    brand_filter: Optional[str] = Field(None, max_length=100, description="Filter by vehicle brand")
+    model_filter: Optional[str] = Field(None, max_length=100, description="Filter by vehicle model")
     k: int = Field(5, ge=1, le=20, description="Number of final results")
 
 
 class CriticalQueryRequest(BaseModel):
-    query: str = Field(..., min_length=1)
-    brand_filter: Optional[str] = None
-    model_filter: Optional[str] = None
+    query: str = Field(..., min_length=1, max_length=4000)
+    brand_filter: Optional[str] = Field(None, max_length=100)
+    model_filter: Optional[str] = Field(None, max_length=100)
     k: int = Field(5, ge=1, le=20)
 
 
 class DebugRetrieveRequest(BaseModel):
-    query: str = Field(..., min_length=1)
+    query: str = Field(..., min_length=1, max_length=4000)
     mode: RetrievalMode = Field(RetrievalMode.hybrid_rerank)
-    brand_filter: Optional[str] = None
-    model_filter: Optional[str] = None
+    brand_filter: Optional[str] = Field(None, max_length=100)
+    model_filter: Optional[str] = Field(None, max_length=100)
     k: int = Field(5, ge=1, le=20)
 
 
 class EvaluateRequest(BaseModel):
-    dataset: str = Field("eval_dataset.json", description="Evaluation dataset filename")
+    dataset: str = Field("eval_dataset.json", max_length=200, description="Evaluation dataset filename")
     mode: RetrievalMode = Field(RetrievalMode.hybrid_rerank)
-    run_name: Optional[str] = Field(None, description="MLflow run name override")
+    run_name: Optional[str] = Field(None, max_length=100, description="MLflow run name override")
 
 
 class FeatureExtractRequest(BaseModel):
     start_index: int = Field(0, ge=0, description="Chunk index to start from")
+
+
+class SignupRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", max_length=254)
+    password: str = Field(..., min_length=8, max_length=128)
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", max_length=254)
+    password: str = Field(..., min_length=1, max_length=128)
+
+
+class ChatSessionCreateRequest(BaseModel):
+    title: Optional[str] = Field(None, max_length=120)
+
+
+class MessageCreateRequest(BaseModel):
+    role: str = Field(..., pattern="^(user|assistant|system)$")
+    content: str = Field(..., min_length=1, max_length=20000)
+    metadata: Optional[dict[str, Any]] = None
 
 
 # ── Response Schemas ──────────────────────────────────────────────────────
@@ -154,9 +175,10 @@ class DebugRetrieveResponse(BaseModel):
 
 
 class HealthResponse(BaseModel):
+    api: str = "healthy"
     mongodb: str
-    vertex_ai: str
-    mlflow: str
+    vertex_ai: Optional[str] = None
+    mlflow: Optional[str] = None
 
 
 class EvaluateResponse(BaseModel):
@@ -175,3 +197,49 @@ class FeatureExtractResponse(BaseModel):
 class IngestResponse(BaseModel):
     status: str
     message: str
+
+
+class PdfUploadIngestResponse(BaseModel):
+    status: str
+    message: str
+    source_file: str
+    brand: str
+    car_model: str
+    supported_years: list[int]
+    chunks_inserted: int
+
+
+class UserResponse(BaseModel):
+    id: str
+    name: str
+    email: str
+    createdAt: str
+    updatedAt: str
+
+
+class AuthResponse(BaseModel):
+    token: str
+    user: UserResponse
+
+
+class ChatSessionResponse(BaseModel):
+    id: str
+    userId: str
+    title: str
+    createdAt: str
+    updatedAt: str
+
+
+class MessageResponse(BaseModel):
+    id: str
+    sessionId: str
+    userId: str
+    role: str
+    content: str
+    metadata: Optional[dict[str, Any]] = None
+    createdAt: str
+
+
+class ChatSessionDetailResponse(BaseModel):
+    session: ChatSessionResponse
+    messages: list[MessageResponse]

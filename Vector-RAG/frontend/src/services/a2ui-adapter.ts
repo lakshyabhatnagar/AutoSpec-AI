@@ -56,8 +56,7 @@ function extractMarkdownTables(text: string) {
  * Converts a critical query response into an A2UI surface using Just-In-Time Generative UI payload
  */
 export function criticalResponseToSurface(
-  res: CriticalQueryResponse,
-  query?: string
+  res: CriticalQueryResponse
 ): A2UISurface {
   const components: A2UIComponent[] = [];
 
@@ -120,8 +119,6 @@ export function criticalResponseToSurface(
           });
         }
         break;
-      default:
-        console.warn("Unknown Generative UI card type:", res.ui_card.type);
     }
   }
 

@@ -17,7 +17,7 @@ const MODES: { value: RetrievalMode; label: string }[] = [
 
 export function QueryModeSelector({ value, onChange, className }: QueryModeSelectorProps) {
   return (
-    <div className={cn("inline-flex bg-zinc-900 border border-zinc-700/50 p-1 rounded-lg", className)}>
+    <div className={cn("inline-flex rounded-full bg-white/[0.055] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl", className)}>
       {MODES.map((mode) => {
         const active = value === mode.value;
         return (
@@ -25,10 +25,10 @@ export function QueryModeSelector({ value, onChange, className }: QueryModeSelec
             key={mode.value}
             onClick={() => onChange(mode.value)}
             className={cn(
-              "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
+              "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
               active 
-                ? "bg-zinc-700/80 text-white shadow-sm" 
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
+                ? "bg-white/[0.12] text-zinc-100 shadow-[0_0_18px_rgba(14,165,183,0.10)]"
+                : "text-zinc-500 hover:bg-white/[0.07] hover:text-zinc-200"
             )}
           >
             {mode.label}

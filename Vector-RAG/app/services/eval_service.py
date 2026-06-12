@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+from pathlib import Path
 from typing import Optional
 
 import mlflow
@@ -16,10 +17,27 @@ from app.services.query_service import handle_query
 from app.models.schemas import RetrievalMode
 
 logger = logging.getLogger("rag.services.eval")
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 # Ensure MLflow provider keys are available
 if "GEMINI_API_KEY" not in os.environ and "GOOGLE_API_KEY" in os.environ:
     os.environ["GEMINI_API_KEY"] = os.environ["GOOGLE_API_KEY"]
+
+
+def _resolve_dataset_path(dataset_path: str) -> Path:
+    """Resolve a project-local JSON dataset path without allowing traversal."""
+    requested = Path(dataset_path)
+    if requested.is_absolute() or ".." in requested.parts:
+        raise ValueError("Dataset path must be a project-relative JSON file.")
+    if requested.suffix.lower() != ".json":
+        raise ValueError("Dataset path must point to a JSON file.")
+
+    resolved = (_PROJECT_ROOT / requested).resolve()
+    try:
+        resolved.relative_to(_PROJECT_ROOT.resolve())
+    except ValueError:
+        raise ValueError("Dataset path must stay within the project directory.")
+    return resolved
 
 
 def run_evaluation(
@@ -31,10 +49,16 @@ def run_evaluation(
     Execute an MLflow evaluation run.
     Returns dict with run_id, run_name, metrics or error.
     """
-    if not os.path.exists(dataset_path):
-        return {"status": "error", "run_name": run_name or "unknown", "error": f"Dataset {dataset_path} not found."}
+    try:
+        resolved_dataset_path = _resolve_dataset_path(dataset_path)
+    except ValueError as e:
+        logger.warning("Rejected evaluation dataset path: %s", e)
+        return {"status": "error", "run_name": run_name or "unknown", "error": "Invalid dataset path."}
 
-    with open(dataset_path, "r") as f:
+    if not resolved_dataset_path.exists():
+        return {"status": "error", "run_name": run_name or "unknown", "error": "Dataset not found."}
+
+    with open(resolved_dataset_path, "r") as f:
         dataset = json.load(f)
 
     eval_dataset = [
@@ -77,5 +101,5 @@ def run_evaluation(
                 "metrics": metrics,
             }
     except Exception as e:
-        logger.error(f"Evaluation failed: {e}")
-        return {"status": "error", "run_name": _run_name, "error": str(e)}
+        logger.exception("Evaluation failed.")
+        return {"status": "error", "run_name": _run_name, "error": "Evaluation failed. Check server logs."}

@@ -1,11 +1,12 @@
 """Query and Critical Query endpoints."""
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from app.models.schemas import (
     QueryRequest, QueryResponse,
     CriticalQueryRequest, CriticalQueryResponse,
     RetrievedChunk, ChunkMetadata,
 )
+from app.routes.errors import raise_route_error
 from app.services import query_service
 
 router = APIRouter(tags=["Query"])
@@ -48,7 +49,7 @@ def query(req: QueryRequest):
             chunk_count=len(chunks),
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise_route_error("Query", e)
 
 
 @router.post("/query/critical", response_model=CriticalQueryResponse)
@@ -70,4 +71,4 @@ def critical_query(req: CriticalQueryRequest):
             ui_card=ui_card,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise_route_error("Critical query", e)

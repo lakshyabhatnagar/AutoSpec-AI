@@ -1,5 +1,7 @@
 "use client";
-import { ArrowRight, Database, Search, Filter, Layers, BrainCircuit, Activity } from "lucide-react";
+
+import { Activity, ArrowRight, BrainCircuit, Database, Filter, Layers, Search } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { DebugRetrieveResponse } from "@/types/api";
 
 interface RetrievalPipelineProps {
@@ -8,88 +10,95 @@ interface RetrievalPipelineProps {
 
 export function RetrievalPipeline({ data }: RetrievalPipelineProps) {
   return (
-    <div className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-6 overflow-x-auto">
-      <div className="flex items-center min-w-max gap-4">
-        
-        {/* Step 1: Query */}
-        <div className="flex flex-col items-center">
-          <div className="h-12 w-12 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center mb-2">
-            <Search className="h-5 w-5 text-blue-400" />
-          </div>
-          <span className="text-xs font-medium text-zinc-300">Query</span>
-          <span className="text-[10px] text-zinc-500 mt-1 max-w-[80px] text-center truncate">
-            {data.is_critical ? data.category || "Critical" : "General"}
-          </span>
-        </div>
+    <div className="overflow-x-auto rounded-[2rem] bg-white/[0.035] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl">
+      <div className="flex min-w-max items-center gap-4">
+        <PipelineNode
+          icon={Search}
+          label="Query"
+          detail={data.is_critical ? data.category || "Critical" : "General"}
+        />
+        <Connector />
 
-        <ArrowRight className="h-5 w-5 text-zinc-600 mb-6" />
-
-        {/* Step 2: Parallel Retrieval */}
         <div className="flex flex-col gap-2">
-          {/* Dense */}
-          <div className="flex items-center gap-3 bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-3 py-2 w-48">
-            <Database className="h-4 w-4 text-emerald-400" />
-            <div className="flex-1">
-              <div className="text-xs font-medium text-zinc-300">Dense (Vector)</div>
-              <div className="text-[10px] text-zinc-500">{data.dense_count} docs</div>
-            </div>
-          </div>
-          {/* BM25 */}
-          <div className="flex items-center gap-3 bg-zinc-800/50 border border-zinc-700/50 rounded-lg px-3 py-2 w-48">
-            <Filter className="h-4 w-4 text-purple-400" />
-            <div className="flex-1">
-              <div className="text-xs font-medium text-zinc-300">Sparse (BM25)</div>
-              <div className="text-[10px] text-zinc-500">{data.bm25_count} docs</div>
-            </div>
-          </div>
-          {/* Feature Store (if critical) */}
+          <StageRow icon={Database} label="Dense vector" detail={`${data.dense_count} docs`} />
+          <StageRow icon={Filter} label="BM25 sparse" detail={`${data.bm25_count} docs`} />
           {data.is_critical && (
-            <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2 w-48">
-              <Activity className="h-4 w-4 text-emerald-400" />
-              <div className="flex-1">
-                <div className="text-xs font-medium text-emerald-300">Feature Store</div>
-                <div className="text-[10px] text-emerald-500/70">{data.feature_store_count} records</div>
-              </div>
-            </div>
+            <StageRow
+              icon={Activity}
+              label="Feature store"
+              detail={`${data.feature_store_count} records`}
+              tone="critical"
+            />
           )}
         </div>
 
-        <ArrowRight className="h-5 w-5 text-zinc-600 mb-6" />
-
-        {/* Step 3: Fusion */}
-        <div className="flex flex-col items-center">
-          <div className="h-12 w-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-2">
-            <Layers className="h-5 w-5 text-amber-400" />
-          </div>
-          <span className="text-xs font-medium text-zinc-300">RRF Fusion</span>
-          <span className="text-[10px] text-zinc-500 mt-1">{data.fused_count} unique</span>
-        </div>
+        <Connector />
+        <PipelineNode icon={Layers} label="RRF Fusion" detail={`${data.fused_count} unique`} />
 
         {data.mode === "hybrid_rerank" && (
           <>
-            <ArrowRight className="h-5 w-5 text-zinc-600 mb-6" />
-            {/* Step 4: Rerank */}
-            <div className="flex flex-col items-center">
-              <div className="h-12 w-12 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center mb-2">
-                <BrainCircuit className="h-5 w-5 text-orange-400" />
-              </div>
-              <span className="text-xs font-medium text-zinc-300">Reranker</span>
-              <span className="text-[10px] text-zinc-500 mt-1">Voyage AI</span>
-            </div>
+            <Connector />
+            <PipelineNode icon={BrainCircuit} label="Reranker" detail="Voyage AI" />
           </>
         )}
 
-        <ArrowRight className="h-5 w-5 text-zinc-600 mb-6" />
+        <Connector />
+        <PipelineNode label="Final Docs" detail="To context" count={data.final_count} />
+      </div>
+    </div>
+  );
+}
 
-        {/* Step 5: Final Selection */}
-        <div className="flex flex-col items-center">
-          <div className="h-12 w-12 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mb-2">
-            <span className="text-sm font-bold text-green-400">{data.final_count}</span>
-          </div>
-          <span className="text-xs font-medium text-zinc-300">Final Docs</span>
-          <span className="text-[10px] text-zinc-500 mt-1">To Context</span>
+function Connector() {
+  return <ArrowRight className="mb-6 h-4 w-4 text-zinc-700" />;
+}
+
+function PipelineNode({
+  icon: Icon,
+  label,
+  detail,
+  count,
+}: {
+  icon?: LucideIcon;
+  label: string;
+  detail: string;
+  count?: number;
+}) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-cyan-300/10 shadow-[0_0_24px_rgba(14,165,183,0.12)]">
+        {Icon ? <Icon className="h-4 w-4 text-zinc-400" /> : <span className="text-sm font-semibold text-zinc-200">{count}</span>}
+      </div>
+      <span className="text-xs font-medium text-zinc-300">{label}</span>
+      <span className="mt-1 max-w-24 truncate text-center text-[10px] text-zinc-500">{detail}</span>
+    </div>
+  );
+}
+
+function StageRow({
+  icon: Icon,
+  label,
+  detail,
+  tone = "default",
+}: {
+  icon: LucideIcon;
+  label: string;
+  detail: string;
+  tone?: "default" | "critical";
+}) {
+  return (
+    <div className={tone === "critical"
+      ? "flex w-48 items-center gap-3 rounded-full bg-emerald-300/10 px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+      : "flex w-48 items-center gap-3 rounded-full bg-white/[0.055] px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"}
+    >
+      <Icon className={tone === "critical" ? "h-4 w-4 text-emerald-400" : "h-4 w-4 text-zinc-500"} />
+      <div className="min-w-0 flex-1">
+        <div className={tone === "critical" ? "truncate text-xs font-medium text-emerald-200" : "truncate text-xs font-medium text-zinc-300"}>
+          {label}
         </div>
-
+        <div className={tone === "critical" ? "text-[10px] text-emerald-500/80" : "text-[10px] text-zinc-500"}>
+          {detail}
+        </div>
       </div>
     </div>
   );

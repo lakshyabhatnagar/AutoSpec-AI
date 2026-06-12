@@ -4,7 +4,7 @@ Handles retrieval mode dispatch, query routing, and generation.
 """
 import json
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 from google import genai
 
@@ -113,6 +113,166 @@ If it is a general question, respond with is_critical=false and category=null.
 Output valid JSON only.
 """
 
+_CRITICAL_CATEGORIES = {
+    "Warranty",
+    "Maintenance Schedules",
+    "Inspection Schedules",
+    "Emergency Services",
+    "Malfunction of Parts",
+    "Safety and Security",
+}
+_CARD_TYPES = {"table", "steps", "alert"}
+_RISK_LEVELS = {"low", "medium", "high", "critical"}
+_MAX_TEXT_LEN = 2000
+_MAX_TABLE_COLUMNS = 12
+_MAX_TABLE_ROWS = 100
+_MAX_STEPS = 50
+_MAX_LIST_ITEMS = 50
+
+
+def _coerce_positive_int(value: Any, fallback: int) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return fallback
+    return parsed if parsed > 0 else fallback
+
+
+def _coerce_text(value: Any, max_len: int = _MAX_TEXT_LEN) -> str:
+    """Convert model-generated UI values into bounded plain strings."""
+    if value is None:
+        return ""
+    text = str(value).strip()
+    return text[:max_len]
+
+
+def _coerce_optional_text(value: Any, max_len: int = _MAX_TEXT_LEN) -> Optional[str]:
+    text = _coerce_text(value, max_len=max_len)
+    return text or None
+
+
+def _coerce_text_list(value: Any, max_items: int = _MAX_LIST_ITEMS) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    items = [_coerce_text(item, max_len=500) for item in value[:max_items]]
+    return [item for item in items if item]
+
+
+def _parse_json_object(text: Optional[str]) -> Optional[dict[str, Any]]:
+    """Parse an LLM JSON response, tolerating accidental markdown fences."""
+    if not text:
+        return None
+    candidate = text.strip()
+    if candidate.startswith("```"):
+        candidate = candidate.strip("`")
+        if candidate.lower().startswith("json"):
+            candidate = candidate[4:].strip()
+    try:
+        data = json.loads(candidate)
+    except json.JSONDecodeError:
+        start = candidate.find("{")
+        end = candidate.rfind("}")
+        if start == -1 or end == -1 or end <= start:
+            return None
+        try:
+            data = json.loads(candidate[start:end + 1])
+        except json.JSONDecodeError:
+            return None
+    return data if isinstance(data, dict) else None
+
+
+def _normalize_category(value: Any) -> Optional[str]:
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip().lower()
+    for category in _CRITICAL_CATEGORIES:
+        if normalized == category.lower():
+            return category
+    return None
+
+
+def _sanitize_ui_card(card: Any) -> Optional[dict[str, Any]]:
+    """Validate generated UI cards before returning them to the frontend."""
+    if not isinstance(card, dict):
+        return None
+
+    card_type = card.get("type")
+    if card_type is None:
+        return None
+    card_type = str(card_type).strip().lower()
+    if card_type not in _CARD_TYPES:
+        logger.warning("Dropped unsupported generated UI card type: %s", card_type)
+        return None
+
+    sanitized: dict[str, Any] = {
+        "type": card_type,
+        "title": _coerce_text(card.get("title"), max_len=200),
+        "brand": _coerce_optional_text(card.get("brand"), max_len=100),
+        "model": _coerce_optional_text(card.get("model"), max_len=100),
+    }
+
+    if card_type == "table":
+        table = card.get("table_data")
+        if not isinstance(table, dict):
+            return None
+        headers = _coerce_text_list(table.get("headers"), max_items=_MAX_TABLE_COLUMNS)
+        rows = table.get("rows") if isinstance(table.get("rows"), list) else []
+        sanitized_rows: list[list[str]] = []
+        for row in rows[:_MAX_TABLE_ROWS]:
+            if not isinstance(row, list):
+                continue
+            sanitized_row = [_coerce_text(cell, max_len=500) for cell in row[:_MAX_TABLE_COLUMNS]]
+            if any(sanitized_row):
+                sanitized_rows.append(sanitized_row)
+        if not headers or not sanitized_rows:
+            return None
+        sanitized["table_data"] = {"headers": headers, "rows": sanitized_rows}
+        return sanitized
+
+    if card_type == "steps":
+        steps_data = card.get("steps_data")
+        if not isinstance(steps_data, dict):
+            return None
+        steps = steps_data.get("steps") if isinstance(steps_data.get("steps"), list) else []
+        sanitized_steps = []
+        for idx, step in enumerate(steps[:_MAX_STEPS], 1):
+            if not isinstance(step, dict):
+                continue
+            action = _coerce_text(step.get("action"), max_len=1000)
+            if not action:
+                continue
+            sanitized_steps.append({
+                "step_number": _coerce_positive_int(step.get("step_number"), idx),
+                "action": action,
+                "caution": _coerce_optional_text(step.get("caution"), max_len=1000),
+            })
+        if not sanitized_steps:
+            return None
+        sanitized["steps_data"] = {
+            "title": _coerce_optional_text(steps_data.get("title"), max_len=200),
+            "steps": sanitized_steps,
+        }
+        return sanitized
+
+    alert = card.get("alert_data")
+    if not isinstance(alert, dict):
+        return None
+    risk_level = _coerce_text(alert.get("risk_level"), max_len=20).lower()
+    if risk_level not in _RISK_LEVELS:
+        risk_level = "medium"
+    warnings = _coerce_text_list(alert.get("warnings"))
+    prohibited_actions = _coerce_text_list(alert.get("prohibited_actions"))
+    precautions = _coerce_text_list(alert.get("precautions"))
+    if not warnings and not prohibited_actions and not precautions:
+        return None
+    sanitized["alert_data"] = {
+        "risk_level": risk_level,
+        "warnings": warnings,
+        "prohibited_actions": prohibited_actions,
+        "precautions": precautions,
+    }
+    return sanitized
+
 
 def classify_query(query: str) -> dict:
     """Lightweight Gemini intent classifier."""
@@ -126,13 +286,13 @@ def classify_query(query: str) -> dict:
                 "response_mime_type": "application/json",
             },
         )
-        result = json.loads(response.text)
+        result = _parse_json_object(response.text) or {}
         return {
             "is_critical": bool(result.get("is_critical", False)),
-            "category": result.get("category"),
+            "category": _normalize_category(result.get("category")),
         }
     except Exception as e:
-        logger.error(f"Query routing failed: {e}")
+        logger.warning("Query routing failed; using non-critical fallback.", exc_info=True)
         return {"is_critical": False, "category": None}
 
 
@@ -179,10 +339,13 @@ def _generate_critical_answer(query: str, chunks: list[RetrievalResult]) -> tupl
                 "response_mime_type": "application/json",
             },
         )
-        data = json.loads(response.text)
-        return data.get("answer", ""), data.get("card", None)
+        data = _parse_json_object(response.text)
+        if data is None:
+            logger.warning("Critical generation returned invalid JSON.")
+            return "An error occurred during response generation.", None
+        return _coerce_text(data.get("answer")), _sanitize_ui_card(data.get("card"))
     except Exception as e:
-        logger.error(f"Critical generation failed: {e}")
+        logger.exception("Critical generation failed.")
         return "An error occurred during response generation.", None
 
 
@@ -203,7 +366,7 @@ def handle_query(
     if retriever is None:
         raise ValueError(f"Unknown retrieval mode: {mode}")
 
-    logger.info(f"Query: '{query}' | Mode: {mode.value}")
+    logger.info("Query received | mode=%s | query_chars=%s", mode.value, len(query))
     chunks = retriever.retrieve(query, k=k, brand_filter=brand_filter, model_filter=model_filter)
     answer = _generate_answer(query, chunks)
     return answer, chunks, mode.value
@@ -223,7 +386,12 @@ def handle_critical_query(
     is_critical = intent["is_critical"]
     category = intent["category"]
 
-    logger.info(f"Critical query: '{query}' | is_critical={is_critical} | category={category}")
+    logger.info(
+        "Critical query received | query_chars=%s | is_critical=%s | category=%s",
+        len(query),
+        is_critical,
+        category,
+    )
 
     if is_critical:
         chunks = _critical_retriever.retrieve(query, k=k, brand_filter=brand_filter, model_filter=model_filter, category=category)

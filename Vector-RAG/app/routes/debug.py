@@ -1,10 +1,11 @@
 """Debug retrieval endpoint — full introspection."""
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from app.models.schemas import (
     DebugRetrieveRequest, DebugRetrieveResponse,
     DebugChunk, ChunkMetadata,
 )
+from app.routes.errors import raise_route_error
 from app.services import query_service
 
 router = APIRouter(tags=["Debug"])
@@ -57,4 +58,4 @@ def debug_retrieve(req: DebugRetrieveRequest):
             chunks=debug_chunks,
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise_route_error("Debug retrieval", e)

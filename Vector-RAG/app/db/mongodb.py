@@ -14,14 +14,17 @@ from app.config.settings import settings
 logger = logging.getLogger("rag.db")
 
 # ── Sync client (PyMongo) ────────────────────────────────────────────────
-_sync_client = MongoClient(settings.MONGO_URI)
+_sync_client = MongoClient(settings.MONGO_URI, serverSelectionTimeoutMS=5000)
 sync_db = _sync_client[settings.MONGO_DB_NAME]
 chunk_collection = sync_db[settings.CHUNK_COLLECTION]
 feature_collection = sync_db[settings.FEATURE_COLLECTION]
 feature_collection_v2 = sync_db[settings.FEATURE_COLLECTION_V2]
+users_collection = sync_db["users"]
+chat_sessions_collection = sync_db["chat_sessions"]
+messages_collection = sync_db["messages"]
 
 # ── Async client (Motor) ─────────────────────────────────────────────────
-_async_client = AsyncIOMotorClient(settings.MONGO_URI)
+_async_client = AsyncIOMotorClient(settings.MONGO_URI, serverSelectionTimeoutMS=5000)
 async_db = _async_client[settings.MONGO_DB_NAME]
 
 

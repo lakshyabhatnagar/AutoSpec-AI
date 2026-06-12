@@ -1,53 +1,99 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchHealth } from "@/services/api";
-import { Server, Database, BrainCircuit, Activity } from "lucide-react";
+import { Database, RefreshCw, Server } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { HealthResponse } from "@/types/api";
 
 export function HealthStatus() {
-  const [health, setHealth] = useState<{ mongodb: string; vertex_ai: string; mlflow: string } | null>(null);
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [apiStatus, setApiStatus] = useState<"healthy" | "unhealthy" | "checking">("checking");
+  const [checking, setChecking] = useState(false);
 
-  useEffect(() => {
-    fetchHealth().then((res) => {
-      if (res.data) setHealth(res.data);
-    });
-    // Poll every 30s
-    const int = setInterval(() => {
-      fetchHealth().then((res) => {
-        if (res.data) setHealth(res.data);
-      });
-    }, 30000);
-    return () => clearInterval(int);
+  const checkHealth = useCallback(async () => {
+    setChecking(true);
+    setApiStatus("checking");
+    const res = await fetchHealth();
+    if (res.data) {
+      setHealth(res.data);
+      setApiStatus("healthy");
+    } else {
+      setApiStatus("unhealthy");
+      setHealth(null);
+    }
+    setChecking(false);
   }, []);
 
-  const StatusDot = ({ status }: { status: string }) => (
-    <div className={`h-2 w-2 rounded-full ${status === "connected" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500 animate-pulse"}`} />
-  );
+  useEffect(() => {
+    let mounted = true;
+    fetchHealth().then((res) => {
+      if (!mounted) return;
+      if (res.data) {
+        setHealth(res.data);
+        setApiStatus("healthy");
+      } else {
+        setApiStatus("unhealthy");
+        setHealth(null);
+      }
+    });
+    const int = setInterval(() => {
+      void checkHealth();
+    }, 30000);
+    return () => {
+      mounted = false;
+      clearInterval(int);
+    };
+  }, [checkHealth]);
+
+  const services = [
+    { label: "API", status: apiStatus, icon: Server },
+    { label: "Mongo", status: health?.mongodb || "unknown", icon: Database },
+  ];
 
   return (
-    <div className="flex items-center gap-4 bg-zinc-900/80 border border-zinc-800 px-4 py-2 rounded-full backdrop-blur text-xs font-medium">
-      <div className="flex items-center gap-2">
-        <Server className="h-3 w-3 text-zinc-400" />
-        <span className="text-zinc-300">API</span>
-        <StatusDot status={health ? "connected" : "disconnected"} />
-      </div>
-      <div className="w-px h-3 bg-zinc-700" />
-      <div className="flex items-center gap-2">
-        <Database className="h-3 w-3 text-zinc-400" />
-        <span className="text-zinc-300">Mongo</span>
-        <StatusDot status={health?.mongodb || "disconnected"} />
-      </div>
-      <div className="w-px h-3 bg-zinc-700" />
-      <div className="flex items-center gap-2">
-        <BrainCircuit className="h-3 w-3 text-zinc-400" />
-        <span className="text-zinc-300">Vertex AI</span>
-        <StatusDot status={health?.vertex_ai || "disconnected"} />
-      </div>
-      <div className="w-px h-3 bg-zinc-700" />
-      <div className="flex items-center gap-2">
-        <Activity className="h-3 w-3 text-zinc-400" />
-        <span className="text-zinc-300">MLflow</span>
-        <StatusDot status={health?.mlflow || "disconnected"} />
-      </div>
+    <div className="flex items-center gap-1 rounded-full border border-white/10 bg-zinc-950/55 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl">
+      {services.map((service) => <StatusPill key={service.label} {...service} />)}
+      <button
+        type="button"
+        onClick={() => void checkHealth()}
+        disabled={checking}
+        className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-white/10 hover:text-zinc-200 disabled:cursor-wait"
+        aria-label="Refresh health status"
+      >
+        <RefreshCw className={cn("h-3.5 w-3.5", checking && "animate-spin")} />
+      </button>
+    </div>
+  );
+}
+
+function StatusPill({
+  label,
+  status,
+  icon: Icon,
+}: {
+  label: string;
+  status: string;
+  icon: LucideIcon;
+}) {
+  const healthy = status === "healthy" || status === "connected";
+  const checking = status === "checking";
+  const unknown = status === "unknown" || checking;
+
+  return (
+    <div className="flex items-center gap-2 rounded-full px-2.5 py-1.5 text-xs font-semibold text-zinc-400">
+      <Icon className={cn("h-3.5 w-3.5", healthy ? "text-emerald-300" : !unknown ? "text-red-300" : "text-zinc-600")} />
+      <span className="hidden lg:inline">{label}</span>
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full shadow-[0_0_10px_currentColor]",
+          healthy && "bg-emerald-400 text-emerald-400",
+          !healthy && !unknown && "bg-red-400 text-red-400",
+          checking && "animate-pulse bg-amber-300 text-amber-300",
+          status === "unknown" && "bg-zinc-600 text-zinc-600"
+        )}
+        title={`${label}: ${status}`}
+      />
     </div>
   );
 }

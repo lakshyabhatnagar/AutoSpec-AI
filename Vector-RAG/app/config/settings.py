@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     VOYAGE_API_KEY: str = os.getenv("VOYAGE_API_KEY", "")
     VOYAGE_RERANK_MODEL: str = "rerank-2.5-lite"
 
+    # Auth
+    AUTH_SECRET: str = os.getenv("AUTH_SECRET", "")
+    AUTH_TOKEN_TTL_SECONDS: int = int(os.getenv("AUTH_TOKEN_TTL_SECONDS", "604800"))
+
     # MLflow
     MLFLOW_TRACKING_URI: str = os.getenv("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db")
     MLFLOW_EXPERIMENT: str = "Automotive-RAG-Eval"

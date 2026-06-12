@@ -1,7 +1,8 @@
 """MLflow evaluation endpoint."""
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from app.models.schemas import EvaluateRequest, EvaluateResponse
+from app.routes.errors import raise_route_error
 from app.services import eval_service
 
 router = APIRouter(tags=["Evaluation"])
@@ -18,4 +19,4 @@ def evaluate(req: EvaluateRequest):
         )
         return EvaluateResponse(**result)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise_route_error("Evaluation", e)

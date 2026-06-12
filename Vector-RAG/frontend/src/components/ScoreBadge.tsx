@@ -8,19 +8,19 @@ interface ScoreBadgeProps {
 
 export function ScoreBadge({ score, label }: ScoreBadgeProps) {
   // Score interpretation (heuristic)
-  let color = "bg-zinc-500/20 text-zinc-300 border-zinc-500/30";
+  let color = "bg-white/[0.06] text-zinc-300";
   
   if (score > 0.8 || score > 8) { // Handles both 0-1 cosine/reranker and RRF (often > 8)
-    color = "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+    color = "bg-emerald-300/10 text-emerald-300";
   } else if (score > 0.6 || score > 4) {
-    color = "bg-amber-500/20 text-amber-300 border-amber-500/30";
+    color = "bg-amber-300/10 text-amber-300";
   } else if (score < 0.4 && score < 2) {
-    color = "bg-red-500/20 text-red-300 border-red-500/30";
+    color = "bg-red-300/10 text-red-300";
   }
 
   return (
-    <div className={cn("flex items-center gap-1.5 px-1.5 py-0.5 rounded border", color)}>
-      {label && <span className="text-[9px] uppercase tracking-wider opacity-70 font-bold">{label}</span>}
+    <div className={cn("flex items-center gap-1.5 rounded-full px-2 py-0.5", color)}>
+      {label && <span className="text-[9px] font-semibold uppercase opacity-70">{label}</span>}
       <span className="text-[11px] font-mono font-medium">
         {Number.isInteger(score) ? score : score.toFixed(3)}
       </span>

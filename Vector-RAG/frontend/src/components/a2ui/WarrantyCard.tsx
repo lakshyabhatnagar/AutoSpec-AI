@@ -1,14 +1,14 @@
 "use client";
 import { useState } from "react";
 import type { WarrantyCardData } from "@/types/a2ui";
-import { Shield, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Shield, X } from "lucide-react";
 
 export function WarrantyCard({ data }: { data: WarrantyCardData }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 backdrop-blur overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-emerald-500/40 bg-emerald-500/20">
+    <div className="overflow-hidden rounded-lg border border-emerald-900/70 bg-emerald-950/10">
+      <div className="flex items-center gap-2 border-b border-emerald-900/70 bg-emerald-950/20 px-4 py-3">
         <Shield className="h-5 w-5 text-emerald-400" />
         <h3 className="text-sm font-bold text-emerald-400">Warranty Information</h3>
         <button onClick={() => setExpanded(!expanded)} className="ml-auto text-emerald-500 hover:text-emerald-300 transition-colors">
@@ -33,7 +33,7 @@ export function WarrantyCard({ data }: { data: WarrantyCardData }) {
                 <ul className="space-y-1">
                   {data.covered_parts.map((p, i) => (
                     <li key={i} className="text-sm text-zinc-300 flex items-start gap-2">
-                      <span className="text-emerald-400 mt-1">✓</span> {p}
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" /> {p}
                     </li>
                   ))}
                 </ul>
@@ -45,7 +45,7 @@ export function WarrantyCard({ data }: { data: WarrantyCardData }) {
                 <ul className="space-y-1">
                   {data.exclusions.map((e, i) => (
                     <li key={i} className="text-sm text-red-300 flex items-start gap-2">
-                      <span className="text-red-400 mt-1">✗</span> {e}
+                      <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" /> {e}
                     </li>
                   ))}
                 </ul>
