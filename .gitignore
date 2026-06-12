@@ -2,3 +2,16 @@
 /apikey
 /Manuals
 .env
+
+.env
+*.env
+.venv/
+__pycache__/
+*.pyc
+mlflow.db
+mlruns/
+node_modules/
+.next/
+dist/
+build/
+*.log
