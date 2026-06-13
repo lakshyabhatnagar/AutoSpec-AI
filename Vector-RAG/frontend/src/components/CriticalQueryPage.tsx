@@ -78,7 +78,7 @@ export function CriticalQueryPage({
   };
 
   return (
-    <PageContainer className="max-w-none bg-[radial-gradient(circle_at_76%_24%,rgba(14,165,183,0.18),transparent_31%),radial-gradient(circle_at_18%_76%,rgba(244,246,248,0.06),transparent_34%),linear-gradient(135deg,#0B1220,#101827_48%,#0b1220)] py-3 pr-0">
+    <PageContainer className="max-w-none bg-[radial-gradient(circle_at_76%_24%,rgba(14,165,183,0.18),transparent_31%),radial-gradient(circle_at_18%_76%,rgba(244,246,248,0.06),transparent_34%),linear-gradient(135deg,#0B1220,#101827_48%,#0b1220)] pb-0 pt-20 pr-0">
       <Surface className="relative mb-3 mr-4 shrink-0 overflow-hidden p-3">
         <div className={cn("absolute inset-y-0 left-0 w-1", tone.soft)} />
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -162,7 +162,7 @@ function EndpointDropdown({
   const selectedTone = selected.tone;
 
   return (
-    <div className={cn("relative shrink-0", compact && "hidden sm:block")}>
+    <div className={cn("relative z-[80] shrink-0", compact && "hidden sm:block")}>
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
@@ -180,7 +180,7 @@ function EndpointDropdown({
       {open && (
         <div
           className={cn(
-            "absolute bottom-full right-0 z-50 mb-2 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/95 p-1 shadow-2xl shadow-black/60 backdrop-blur-xl",
+            "absolute bottom-full right-0 z-[90] mb-2 overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/98 p-1 shadow-2xl shadow-black/70 backdrop-blur-2xl",
             compact ? "w-56" : "w-64"
           )}
           role="listbox"

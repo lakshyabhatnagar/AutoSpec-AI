@@ -33,7 +33,7 @@ export function QueryForm({
     <form onSubmit={onSubmit} className="shrink-0">
       <div
         className={cn(
-          "relative isolate flex min-h-16 items-center gap-2 overflow-hidden rounded-full border border-white/10 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]",
+          "relative isolate flex min-h-16 items-center gap-2 overflow-visible rounded-full border border-white/10 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]",
           tone === "critical" && "border-cyan-200/15 bg-white/[0.07]",
           tone === "debug" && "border-violet-300/15 bg-violet-300/[0.045]",
           className

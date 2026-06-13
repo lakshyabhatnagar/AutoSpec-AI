@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: autospec-ai-api
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: MONGO_URI
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: AUTH_TOKEN_TTL_SECONDS
+        value: "604800"
+      - key: CORS_ORIGINS
+        value: http://localhost:3000
+      - key: VERTEX_PROJECT
+        sync: false
+      - key: VERTEX_LOCATION
+        value: us-central1
+      - key: VERTEX_CREDENTIALS
+        sync: false
+      - key: GENERATION_MODEL
+        value: gemini-2.5-flash-lite
+      - key: ROUTER_MODEL
+        value: gemini-2.5-flash
+      - key: EXTRACTION_MODEL
+        value: gemini-2.5-flash
+      - key: VOYAGE_API_KEY
+        sync: false

@@ -6,6 +6,7 @@ import { SafetyAlert } from "@/components/a2ui/SafetyAlert";
 import { EmergencySteps } from "@/components/a2ui/EmergencySteps";
 import { MalfunctionCard } from "@/components/a2ui/MalfunctionCard";
 import { GenericTable } from "@/components/a2ui/GenericTable";
+import { MarkdownText } from "@/components/MarkdownText";
 
 /**
  * A2UI React Renderer — Maps A2UI surface components to native React components.
@@ -19,11 +20,7 @@ export function A2UIRenderer({ surface }: { surface: A2UISurface }) {
         switch (comp.type) {
           case "text":
             return (
-              <div key={comp.id} className="prose prose-invert max-w-none">
-                <div className="whitespace-pre-wrap text-zinc-200 leading-relaxed">
-                  {comp.data as string}
-                </div>
-              </div>
+              <MarkdownText key={comp.id} text={comp.data as string} />
             );
           case "maintenance_table":
             return <MaintenanceTable key={comp.id} data={comp.data as never} />;

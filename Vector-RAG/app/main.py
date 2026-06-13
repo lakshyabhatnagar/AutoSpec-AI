@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config.settings import cors_origins
 from app.db.mongodb import chat_sessions_collection, messages_collection, users_collection
 from app.retrieval.bm25 import bm25_index
 from app.retrieval.critical import feature_bm25_index, tables_bm25_index
@@ -55,7 +56,7 @@ app = FastAPI(
 # ── CORS (allow Next.js frontend) ─────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
