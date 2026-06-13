@@ -4,6 +4,8 @@ AutoSpec AI is a full-stack automotive RAG workspace for asking vehicle-manual q
 
 The app combines a Next.js frontend, FastAPI backend, MongoDB retrieval store, Vertex AI generation/embedding, and Voyage AI reranking.
 
+### Live at: https://auto-spec-ai.vercel.app/
+
 ## Features
 
 - Authenticated SaaS-style interface
